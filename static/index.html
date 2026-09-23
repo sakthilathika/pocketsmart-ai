@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketSmart AI - Smart Budget & Recommendations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .hero-card { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; border-radius: 12px; }
+        .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .btn-custom { background-color: #ff6b6b; color: white; font-weight: 600; border: none; }
+        .btn-custom:hover { background-color: #ee5253; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="p-4 mb-4 hero-card text-center">
+            <h1 class="fw-bold">PocketSmart AI</h1>
+            <p class="lead mb-0">Your GenAI-Powered Smart Budget & Recommendation Assistant</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-5">
+                <div class="card p-4">
+                    <h4 class="mb-3">Plan Your Budget</h4>
+                    <form id="budgetForm">
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" required>
+                                <option value="Home Interior Planning">Home Interior Planning</option>
+                                <option value="Event / Party Planning">Event / Party Planning</option>
+                                <option value="Electronics & Gadgets">Electronics & Gadgets</option>
+                                <option value="Fashion & Jewelry Shopping">Fashion & Jewelry Shopping</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="budget" class="form-label">Total Budget (₹)</label>
+                            <input type="number" class="form-control" id="budget" placeholder="e.g. 25000" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="items" class="form-label">Items / Requirements</label>
+                            <textarea class="form-control" id="items" rows="3" placeholder="e.g. Dining table, Ceiling fans, LED lights" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-custom w-100 py-2">Generate Recommendations</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <div class="card p-4">
+                    <h4 class="mb-3">AI Recommendation Results</h4>
+                    <div id="loading" class="text-center my-4 d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Analyzing budget & generating recommendations...</p>
+                    </div>
+                    <div id="result" class="p-3 bg-light rounded" style="min-height: 250px; white-space: pre-wrap;">
+                        Select category, enter budget, and click generate to view smart recommendations.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('budgetForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const category = document.getElementById('category').value;
+            const total_budget = parseFloat(document.getElementById('budget').value);
+            const items_needed = document.getElementById('items').value;
+
+            document.getElementById('loading').classList.remove('d-none');
+            document.getElementById('result').innerText = '';
+
+            try {
+                const response = await fetch('/api/recommend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category, total_budget, items_needed })
+                });
+                const data = await response.json();
+                document.getElementById('loading').classList.add('d-none');
+                if (data.success) {
+                    document.getElementById('result').innerText = data.recommendation;
+                } else {
+                    document.getElementById('result').innerText = "Error: " + data.detail;
+                }
+            } catch (err) {
+                document.getElementById('loading').classList.add('d-none');
+                document.getElementById('result').innerText = "An error occurred while connecting to the server.";
+            }
+        });
+    </script>
+</body>
+</html>
