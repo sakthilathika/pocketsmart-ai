@@ -9,7 +9,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = "pocketsmart_secret_key"
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 users = {}
 
