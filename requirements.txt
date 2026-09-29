@@ -1,5 +1,5 @@
-fastapi
-uvicorn
-google-genai
-pydantic
-jinja2
+Flask
+Flask-SQLAlchemy
+Werkzeug
+google-generativeai
+gunicorn
