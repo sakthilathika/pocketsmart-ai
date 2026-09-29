@@ -126,7 +126,7 @@ def generate_home():
     """
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-1.5-flash") 
         response = model.generate_content(prompt)
         cleaned_result = clean_json_response(response.text)
         parsed_result = json.loads(cleaned_result)
