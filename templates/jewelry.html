@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PocketSmart - Jewelry Planner</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
+    .header { background-color: #1e3a8a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .nav a { color: white; margin-left: 20px; text-decoration: none; font-weight: bold; }
+    .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+    .card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+    .card-title { background: #1e3a8a; color: white; padding: 10px 15px; border-radius: 6px; font-size: 16px; font-weight: bold; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #334155; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+    .btn { background-color: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+    .btn:hover { background-color: #1d4ed8; }
+
+    .summary-box { background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; color: #0369a1; }
+    .item-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #fafafa; }
+    .item-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; color: #1e3a8a; margin-bottom: 8px; }
+    .badge { background: #2563eb; color: white; padding: 4px 10px; border-radius: 4px; font-size: 13px; }
+    .shop-links { margin-top: 10px; }
+    .shop-btn { background: white; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; margin-right: 4px; font-size: 12px; cursor: pointer; text-decoration: none; color: #334155; }
+    .tips-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 6px; color: #92400e; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>PocketSmart - Jewelry Planner</h1>
+    <div class="nav">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/home_planner">Home Planner</a>
+      <a href="/party_planner">Party Planner</a>
+      <a href="/jewelry_planner">Jewelry Planner</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-title">Find Matching Jewelry Within Your Budget</div>
+      <div class="form-group">
+        <label>Occasion / Items Needed:</label>
+        <input type="text" id="items" placeholder="Wedding / Ring and Watch">
+      </div>
+      <div class="form-group">
+        <label>Total Budget ($ / ₹):</label>
+        <input type="number" id="budget" placeholder="45000">
+      </div>
+      <button class="btn" onclick="generatePlan()">Get Recommendations</button>
+    </div>
+
+    <div id="resultsCard" class="card" style="display: none;">
+      <div class="card-title">Jewelry Recommendations</div>
+      <div id="outputContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    async function generatePlan() {
+      const items = document.getElementById('items').value;
+      const budget = document.getElementById('budget').value;
+      const resultsCard = document.getElementById('resultsCard');
+      const outputContainer = document.getElementById('outputContainer');
+
+      if (!items || !budget) {
+        alert("Please fill in both fields.");
+        return;
+      }
+
+      outputContainer.innerHTML = "<p>Generating recommendations...</p>";
+      resultsCard.style.display = "block";
+
+      try {
+        const response = await fetch('/generate_jewelry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items, budget })
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+          outputContainer.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+          return;
+        }
+
+        const json = JSON.parse(data.result);
+        
+        let html = `
+          <div class="summary-box">
+            <b>Budget Summary:</b> Total Budget $${json.total_budget}
+            <div style="margin-top:5px; font-weight:normal;">
+              Outfit Style: ${json.outfit_analysis?.style || 'N/A'} | Colors: ${json.outfit_analysis?.colors || 'N/A'}
+            </div>
+          </div>
+        `;
+
+        json.recommendations.forEach(item => {
+          html += `
+            <div class="item-card">
+              <div class="item-header">
+                <span>${item.name}</span>
+                <span class="badge">$${item.price}</span>
+              </div>
+              <p style="margin: 5px 0; color: #475569;">${item.description}</p>
+              <div style="font-size: 13px; color: #64748b;">Style: ${item.style}</div>
+              <div class="shop-links">
+                <b>Shop For This:</b>
+                <a href="https://www.amazon.com/s?k=${encodeURIComponent(item.name)}" target="_blank" class="shop-btn">Amazon</a>
+                <a href="https://www.flipkart.com/search?q=${encodeURIComponent(item.name)}" target="_blank" class="shop-btn">Flipkart</a>
+                <a href="https://www.myntra.com/${encodeURIComponent(item.name)}" target="_blank" class="shop-btn">Myntra</a>
+              </div>
+            </div>
+          `;
+        });
+
+        if (json.tips && json.tips.length > 0) {
+          html += `
+            <div class="tips-box">
+              <b>Styling Tips:</b>
+              <ul>${json.tips.map(tip => `<li>${tip}</li>`).join('')}</ul>
+            </div>
+          `;
+        }
+
+        outputContainer.innerHTML = html;
+
+      } catch (err) {
+        outputContainer.innerHTML = `<p style="color:red;">Failed to render response.</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
