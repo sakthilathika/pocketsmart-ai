@@ -9,7 +9,9 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = "pocketsmart_secret_key"
 
-client = genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# ✅ Gemini API Configure
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 users = {}
 
@@ -120,10 +122,8 @@ def generate_home():
     }}
     """
     try:
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt
-        )
+        # ✅ Corrected Gemini API Call
+        response = model.generate_content(prompt)
         cleaned_result = clean_json_response(response.text)
     except Exception as e:
         # Fallback response for demo safety if API fails or exhausts quota
@@ -191,10 +191,8 @@ def generate_jewelry():
     }}
     """
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
+        # ✅ Corrected Gemini API Call
+        response = model.generate_content(prompt)
         cleaned_result = clean_json_response(response.text)
     except Exception as e:
         # Fallback response for demo safety
@@ -260,10 +258,8 @@ def generate_party():
     }}
     """
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
+        # ✅ Corrected Gemini API Call
+        response = model.generate_content(prompt)
         cleaned_result = clean_json_response(response.text)
     except Exception as e:
         # Fallback response for demo safety
