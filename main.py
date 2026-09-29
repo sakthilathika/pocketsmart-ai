@@ -53,14 +53,17 @@ def logout():
     return redirect(url_for("login"))
 
 @app.route("/homeplanner")
+@app.route("/home_planner")
 def home_planner():
     return render_template("homeinterior.html")
 
 @app.route("/jewelryplanner")
+@app.route("/jewelry_planner")
 def jewelry_planner():
     return render_template("jewelry.html")
 
 @app.route("/partyplanner")
+@app.route("/party_planner")
 def party_planner():
     return render_template("partyplanner.html")
 
@@ -86,13 +89,14 @@ def save_to_history(planner_type, title, budget):
     })
     session["history"] = history
 
+
 # 1. HOME INTERIOR PLANNER ROUTE
 @app.route("/generate_home", methods=["POST"])
 def generate_home():
     data = request.get_json() or {}
     rooms = data.get("rooms", "Living Room")
     budget = data.get("budget", "50000")
-    
+
     prompt = f"""
     Act as a home interior budget planner. Plan interior for: {rooms} with budget: {budget}.
     Return ONLY valid JSON in this exact structure without markdown or backticks:
@@ -119,14 +123,17 @@ def generate_home():
         ]
     }}
     """
+
     try:
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt
         )
         cleaned_result = clean_json_response(response.text)
+        parsed_result = json.loads(cleaned_result)
     except Exception as e:
-        cleaned_result = json.dumps({
+        print("Home Planner Generation Error:", e)
+        parsed_result = {
             "total_budget": budget,
             "remaining_budget": "2500",
             "categories": [
@@ -147,10 +154,11 @@ def generate_home():
                     ]
                 }
             ]
-        })
-    
+        }
+
     save_to_history("Home Interior", f"Rooms: {rooms}", budget)
-    return jsonify({"result": cleaned_result})
+    return jsonify({"result": parsed_result})
+
 
 # 2. JEWELRY PLANNER ROUTE
 @app.route("/generate_jewelry", methods=["POST"])
@@ -158,7 +166,7 @@ def generate_jewelry():
     data = request.get_json() or {}
     items = data.get("items", "Wedding")
     budget = data.get("budget", "25000")
-    
+
     prompt = f"""
     Act as a jewelry budget planner. Plan jewelry for: {items} with total budget: {budget}.
     Return ONLY valid JSON in this exact structure without markdown or backticks:
@@ -189,14 +197,17 @@ def generate_jewelry():
         ]
     }}
     """
+
     try:
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt
         )
         cleaned_result = clean_json_response(response.text)
+        parsed_result = json.loads(cleaned_result)
     except Exception as e:
-        cleaned_result = json.dumps({
+        print("Jewelry Planner Generation Error:", e)
+        parsed_result = {
             "total_budget": budget,
             "outfit_analysis": {
                 "colors": "Gold & Silver Accents",
@@ -221,10 +232,11 @@ def generate_jewelry():
                 "Ensure color symmetry between your outfit and metallic tones.",
                 "Balance heavier statement pieces with subtle wrists accessories."
             ]
-        })
+        }
 
     save_to_history("Jewelry Planner", f"Occasion: {items}", budget)
-    return jsonify({"result": cleaned_result})
+    return jsonify({"result": parsed_result})
+
 
 # 3. PARTY PLANNER ROUTE
 @app.route("/generate_party", methods=["POST"])
@@ -233,7 +245,7 @@ def generate_party():
     event_type = data.get("event_type", "Birthday")
     guests = data.get("guests", "25")
     budget = data.get("budget", "15000")
-    
+
     prompt = f"""
     Act as a party event planner. Plan a {event_type} party for {guests} guests with a budget of {budget}.
     Return ONLY valid JSON in this exact structure without markdown or backticks:
@@ -250,21 +262,24 @@ def generate_party():
             {{
                 "name": "Catering & Cake",
                 "items": [
-                    {{"name": "Buffet Meal Service", "description": f"Standard buffet spread for {guests} guests", "price": "5000"}},
+                    {{"name": "Buffet Meal Service", "description": "Standard buffet spread for {guests} guests", "price": "5000"}},
                     {{"name": "Custom Theme Cake", "description": "2 kg custom design cake", "price": "1500"}}
                 ]
             }}
         ]
     }}
     """
+
     try:
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt
         )
         cleaned_result = clean_json_response(response.text)
+        parsed_result = json.loads(cleaned_result)
     except Exception as e:
-        cleaned_result = json.dumps({
+        print("Party Planner Generation Error:", e)
+        parsed_result = {
             "total_budget": budget,
             "categories": [
                 {
@@ -282,11 +297,11 @@ def generate_party():
                     ]
                 }
             ]
-        })
+        }
 
     save_to_history("Party Planner", f"{event_type} ({guests} Guests)", budget)
-    return jsonify({"result": cleaned_result})
+    return jsonify({"result": parsed_result})
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000, debug=True)
-
