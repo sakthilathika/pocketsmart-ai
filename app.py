@@ -1,7 +1,7 @@
 import os
 import json
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
-from google.generativeai as genai
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
