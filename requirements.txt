@@ -7,3 +7,5 @@ python-multipart
 requests
 pillow
 google-generativeai
+python-jose[cryptography]
+passlib[bcrypt]
