@@ -4,93 +4,338 @@
   <meta charset="UTF-8">
   <title>PocketSmart - Dashboard</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
-    .header { background-color: #1e3a8a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-    .header h1 { margin: 0; font-size: 22px; }
-    .nav a { color: white; margin-left: 20px; text-decoration: none; font-weight: bold; }
-    .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-    .welcome-card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; }
-    .welcome-card h2 { margin: 0 0 10px 0; color: #1e3a8a; }
-    .welcome-card p { margin: 0; color: #64748b; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .planner-card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #2563eb; }
-    .planner-card h3 { margin-top: 0; color: #1e3a8a; font-size: 18px; }
-    .planner-card p { color: #64748b; font-size: 14px; line-height: 1.5; }
-    .btn { display: inline-block; background-color: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; margin-top: 15px; text-align: center; width: calc(100% - 36px); }
-    .btn:hover { background-color: #1d4ed8; }
-    
-    /* History Section Styles */
-    .history-card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .history-card h3 { margin-top: 0; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 14px; }
-    th { background-color: #f8fafc; color: #475569; }
-    .badge { background: #2563eb; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f1f5f9;
+      color: #334155;
+    }
+
+    /* Top Navigation Bar */
+    .header {
+      background-color: #0f2347;
+      color: white;
+      padding: 14px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 24px;
+    }
+
+    .nav a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s ease;
+    }
+
+    .nav a:hover {
+      color: #ffffff;
+    }
+
+    /* Dark Hero Welcome Banner */
+    .hero-section {
+      background: linear-gradient(180deg, #0f2347 0%, #1e3a8a 100%);
+      color: #ffffff;
+      text-align: center;
+      padding: 40px 20px 80px 20px;
+    }
+
+    .hero-section h2 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .hero-section p {
+      color: #93c5fd;
+      font-size: 0.95rem;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px 40px 20px;
+    }
+
+    /* Cards Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: -50px; /* Overlaps into the dark banner */
+    }
+
+    .planner-card {
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      border: none;
+      padding: 0;
+    }
+
+    .card-img-container img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      align-items: center;
+      text-align: center;
+    }
+
+    .planner-card h3 {
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #1e293b;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .planner-card p {
+      font-size: 0.85rem;
+      color: #64748b;
+      line-height: 1.4;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 10px 0;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      text-decoration: none;
+      text-align: center;
+      width: 100%;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* Center Action Button */
+    .center-btn-container {
+      text-align: center;
+      margin: 24px 0 32px 0;
+    }
+
+    .btn-warning {
+      background-color: #f59e0b;
+      color: #ffffff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .btn-warning:hover {
+      background-color: #d97706;
+    }
+
+    /* History Activity Card */
+    .history-card {
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .history-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 0;
+    }
+
+    .item-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      background-color: #e0f2fe;
+    }
+
+    .item-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #1e293b;
+    }
+
+    .item-sub {
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: #0f2347;
+      color: #64748b;
+      text-align: center;
+      padding: 16px;
+      font-size: 0.8rem;
+      margin-top: 40px;
+    }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>PocketSmart Dashboard</h1>
+  <!-- Navigation Bar -->
+  <header class="header">
+    <h1>📊 PocketSmart</h1>
     <div class="nav">
-      <a href="/dashboard">Dashboard</a>
-      <a href="/logout">Logout</a>
+      <a href="/home_planner">🏠 Home Planner</a>
+      <a href="/party_planner">🎉 Party Planner</a>
+      <a href="/jewelry_planner">💎 Jewelry Planner</a>
+      <a href="#history">⏳ History</a>
+      <a href="/logout">↪ Logout</a>
     </div>
-  </div>
+  </header>
 
-  <div class="container">
-    <div class="welcome-card">
-      <h2>Welcome back, {{ username }}!</h2>
-      <p>Select an AI budget planner below to start organizing your expenses.</p>
-    </div>
+  <!-- Hero Banner -->
+  <section class="hero-section">
+    <h2>Welcome, {{ username }}!</h2>
+    <p>Choose a budget planner to get started with your personalized financial planning experience</p>
+  </section>
 
+  <!-- Main Content Container -->
+  <main class="container">
+
+    <!-- Planner Cards Grid -->
     <div class="grid">
+      
+      <!-- Home Budget Planner Card -->
       <div class="planner-card">
-        <h3>Home Interior Planner</h3>
-        <p>Calculate room costs, itemized interior breakdown, and shopping links within your budget.</p>
-        <a href="/home_planner" class="btn">Open Home Planner</a>
+        <div class="card-img-container">
+          <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80" alt="Home Interior">
+        </div>
+        <div class="card-body">
+          <h3>🏠 Home Budget Planner</h3>
+          <p>Plan your interior design budget efficiently with AI-powered recommendations for furniture, lighting, and more.</p>
+          <a href="/home_planner" class="btn">Get Started</a>
+        </div>
       </div>
 
+      <!-- Party Budget Planner Card -->
       <div class="planner-card">
-        <h3>Jewelry Planner</h3>
-        <p>Get personalized jewelry suggestions, style tips, and direct shopping links for events.</p>
-        <a href="/jewelry_planner" class="btn">Open Jewelry Planner</a>
+        <div class="card-img-container">
+          <img src="https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=600&q=80" alt="Party Planner">
+        </div>
+        <div class="card-body">
+          <h3>🎈 Party Budget Planner</h3>
+          <p>Plan your perfect event with budget allocations for venue, catering, decorations, and entertainment.</p>
+          <a href="/party_planner" class="btn">Get Started</a>
+        </div>
       </div>
 
+      <!-- Jewelry Budget Planner Card -->
       <div class="planner-card">
-        <h3>Party Planner</h3>
-        <p>Plan venues, catering, and entertainment budget allocation for your upcoming events.</p>
-        <a href="/party_planner" class="btn">Open Party Planner</a>
+        <div class="card-img-container">
+          <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=600&q=80" alt="Jewelry Planner">
+        </div>
+        <div class="card-body">
+          <h3>💎 Jewelry Budget Planner</h3>
+          <p>Find the ideal jewelry pieces for any occasion that match your outfit and stay within your budget.</p>
+          <a href="/jewelry_planner" class="btn">Get Started</a>
+        </div>
       </div>
+
     </div>
 
-    <!-- History Card -->
-    <div class="history-card">
-      <h3>Your Recent Search History</h3>
+    <!-- Center History Button -->
+    <div class="center-btn-container">
+      <button class="btn-warning">View All Recommendation History</button>
+    </div>
+
+    <!-- History / Recent Activity Card -->
+    <div class="history-card" id="history">
+      <h3>🕒 Recent Activity</h3>
+      
       {% if history and history|length > 0 %}
-        <table>
-          <thead>
-            <tr>
-              <th>Planner Type</th>
-              <th>Details</th>
-              <th>Budget</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in history %}
-              <tr>
-                <td><span class="badge">{{ item.type }}</span></td>
-                <td>{{ item.title }}</td>
-                <td>${{ item.budget }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="activity-list">
+          {% for item in history %}
+            <div class="activity-item">
+              <div class="item-icon">📌</div>
+              <div class="item-details">
+                <div class="item-title">{{ item.title }}</div>
+                <div class="item-sub">{{ item.type }} · Budget: ${{ item.budget }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
       {% else %}
-        <p style="color: #64748b;">No recent plans generated yet. Try generating a budget plan above!</p>
+        <p style="color: #64748b; font-size: 0.85rem;">No recent plans generated yet. Try generating a budget plan above!</p>
       {% endif %}
+
     </div>
-  </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    © 2025 PocketSmart. All rights reserved.
+  </footer>
 
 </body>
 </html>
