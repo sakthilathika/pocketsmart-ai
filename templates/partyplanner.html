@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PocketSmart - Party Planner</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
+    .header { background-color: #1e3a8a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .nav a { color: white; margin-left: 20px; text-decoration: none; font-weight: bold; }
+    .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+    .card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+    .card-title { background: #1e3a8a; color: white; padding: 10px 15px; border-radius: 6px; font-size: 16px; font-weight: bold; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #334155; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+    .btn { background-color: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+    .btn:hover { background-color: #1d4ed8; }
+
+    .summary-box { background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; color: #0369a1; }
+    .category-header { background: #f1f5f9; padding: 8px 12px; border-left: 4px solid #2563eb; margin: 15px 0 10px 0; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 14px; }
+    th { background-color: #f8fafc; color: #475569; }
+    .badge { background: #2563eb; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>PocketSmart - Party Planner</h1>
+    <div class="nav">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/home_planner">Home Planner</a>
+      <a href="/party_planner">Party Planner</a>
+      <a href="/jewelry_planner">Jewelry Planner</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-title">Party Budget Planner</div>
+      <div class="form-group">
+        <label>Event Type:</label>
+        <input type="text" id="event_type" placeholder="Birthday / Wedding">
+      </div>
+      <div class="form-group">
+        <label>Number of Guests:</label>
+        <input type="number" id="guests" placeholder="50">
+      </div>
+      <div class="form-group">
+        <label>Total Budget ($ / ₹):</label>
+        <input type="number" id="budget" placeholder="5000">
+      </div>
+      <button class="btn" onclick="generatePlan()">Generate Budget Plan</button>
+    </div>
+
+    <div id="resultsCard" class="card" style="display: none;">
+      <div class="card-title">Your Party Budget Plan</div>
+      <div id="outputContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    async function generatePlan() {
+      const event_type = document.getElementById('event_type').value;
+      const guests = document.getElementById('guests').value;
+      const budget = document.getElementById('budget').value;
+      const resultsCard = document.getElementById('resultsCard');
+      const outputContainer = document.getElementById('outputContainer');
+
+      if (!event_type || !guests || !budget) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      outputContainer.innerHTML = "<p>Generating party plan...</p>";
+      resultsCard.style.display = "block";
+
+      try {
+        const response = await fetch('/generate_party', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event_type, guests, budget })
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+          outputContainer.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+          return;
+        }
+
+        const json = JSON.parse(data.result);
+        
+        let html = `
+          <div class="summary-box">
+            <span>Budget: $${json.total_budget}</span>
+          </div>
+        `;
+
+        json.categories.forEach(cat => {
+          html += `<div class="category-header">${cat.name}</div>`;
+          html += `
+            <table>
+              <thead>
+                <tr>
+                  <th>Option / Item</th>
+                  <th>Description</th>
+                  <th>Estimated Price</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+
+          cat.items.forEach(item => {
+            html += `
+              <tr>
+                <td><b>${item.name}</b></td>
+                <td>${item.description}</td>
+                <td><span class="badge">$${item.price}</span></td>
+              </tr>
+            `;
+          });
+
+          html += `</tbody></table>`;
+        });
+
+        outputContainer.innerHTML = html;
+
+      } catch (err) {
+        outputContainer.innerHTML = `<p style="color:red;">Failed to render response.</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
