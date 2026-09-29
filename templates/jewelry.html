@@ -55,83 +55,100 @@
     <div id="resultsCard" class="card" style="display: none;">
       <div class="card-title">Jewelry Recommendations</div>
       <div id="outputContainer"></div>
-    </div>
-  </div>
+    </div><script>
+async function getRecommendations() {
+  const items = document.getElementById('items').value.trim();
+  const budget = document.getElementById('budget').value.trim();
+  const resultsCard = document.getElementById('resultsCard');
+  const outputContainer = document.getElementById('outputContainer');
 
-  <script>
-    async function generatePlan() {
-      const items = document.getElementById('items').value;
-      const budget = document.getElementById('budget').value;
-      const resultsCard = document.getElementById('resultsCard');
-      const outputContainer = document.getElementById('outputContainer');
+  if (!items || !budget) {
+    alert("Please fill in all fields.");
+    return;
+  }
 
-      if (!items || !budget) {
-        alert("Please fill in both fields.");
-        return;
-      }
+  outputContainer.innerHTML = "<p>Generating recommendations...</p>";
+  resultsCard.style.display = "block";
 
-      outputContainer.innerHTML = "<p>Generating recommendations...</p>";
-      resultsCard.style.display = "block";
+  try {
+    const response = await fetch('/generate_jewelry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, budget })
+    });
 
-      try {
-        const response = await fetch('/generate_jewelry', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ items, budget })
-        });
-
-        const data = await response.json();
-        
-        if (data.error) {
-          outputContainer.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
-          return;
-        }
-
-        const json = JSON.parse(data.result);
-        
-        let html = `
-          <div class="summary-box">
-            <b>Budget Summary:</b> Total Budget $${json.total_budget}
-            <div style="margin-top:5px; font-weight:normal;">
-              Outfit Style: ${json.outfit_analysis?.style || 'N/A'} | Colors: ${json.outfit_analysis?.colors || 'N/A'}
-            </div>
-          </div>
-        `;
-
-        json.recommendations.forEach(item => {
-          html += `
-            <div class="item-card">
-              <div class="item-header">
-                <span>${item.name}</span>
-                <span class="badge">$${item.price}</span>
-              </div>
-              <p style="margin: 5px 0; color: #475569;">${item.description}</p>
-              <div style="font-size: 13px; color: #64748b;">Style: ${item.style}</div>
-              <div class="shop-links">
-                <b>Shop For This:</b>
-                <a href="https://www.amazon.com/s?k=${encodeURIComponent(item.name)}" target="_blank" class="shop-btn">Amazon</a>
-                <a href="https://www.flipkart.com/search?q=${encodeURIComponent(item.name)}" target="_blank" class="shop-btn">Flipkart</a>
-                <a href="https://www.myntra.com/${encodeURIComponent(item.name)}" target="_blank" class="shop-btn">Myntra</a>
-              </div>
-            </div>
-          `;
-        });
-
-        if (json.tips && json.tips.length > 0) {
-          html += `
-            <div class="tips-box">
-              <b>Styling Tips:</b>
-              <ul>${json.tips.map(tip => `<li>${tip}</li>`).join('')}</ul>
-            </div>
-          `;
-        }
-
-        outputContainer.innerHTML = html;
-
-      } catch (err) {
-        outputContainer.innerHTML = `<p style="color:red;">Failed to render response.</p>`;
-      }
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
     }
-  </script>
+
+    const data = await response.json();
+
+    if (data.error) {
+      outputContainer.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+      return;
+    }
+
+    const json = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
+
+    let html = `
+      <div class="summary-box">
+        <span>Total Budget: ${json.total_budget || budget}</span>
+      </div>
+    `;
+
+    if (json.outfit_analysis) {
+      html += `
+        <div style="margin-bottom: 15px; padding: 10px; background: #f8fafc; border-radius: 6px;">
+          <p><b>Style / Theme:</b> ${json.outfit_analysis.style || 'N/A'}</p>
+          <p><b>Colors:</b> ${json.outfit_analysis.colors || 'N/A'}</p>
+        </div>
+      `;
+    }
+
+    if (json.recommendations && Array.isArray(json.recommendations)) {
+      html += `
+        <table>
+          <thead>
+            <tr>
+              <th>Item Name</th>
+              <th>Description</th>
+              <th>Style</th>
+              <th>Estimated Price</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      json.recommendations.forEach(rec => {
+        html += `
+          <tr>
+            <td><b>${rec.name}</b></td>
+            <td>${rec.description}</td>
+            <td>${rec.style || '-'}</td>
+            <td><span class="badge">${rec.price}</span></td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+    }
+
+    if (json.tips && Array.isArray(json.tips)) {
+      html += `<h4>Pro Tips:</h4><ul>`;
+      json.tips.forEach(tip => {
+        html += `<li>${tip}</li>`;
+      });
+      html += `</ul>`;
+    }
+
+    outputContainer.innerHTML = html;
+
+  } catch (err) {
+    console.error("Jewelry Fetch Error:", err);
+    outputContainer.innerHTML = `<p style="color:red;">Failed to render response: ${err.message}</p>`;
+  }
+}
+</script>
+  </div>
 </body>
 </html>
