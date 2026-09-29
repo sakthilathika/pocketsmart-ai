@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PocketSmart - Dashboard</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
+    .header { background-color: #1e3a8a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .nav a { color: white; margin-left: 20px; text-decoration: none; font-weight: bold; }
+    .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .welcome-card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; }
+    .welcome-card h2 { margin: 0 0 10px 0; color: #1e3a8a; }
+    .welcome-card p { margin: 0; color: #64748b; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .planner-card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #2563eb; }
+    .planner-card h3 { margin-top: 0; color: #1e3a8a; font-size: 18px; }
+    .planner-card p { color: #64748b; font-size: 14px; line-height: 1.5; }
+    .btn { display: inline-block; background-color: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; margin-top: 15px; text-align: center; width: calc(100% - 36px); }
+    .btn:hover { background-color: #1d4ed8; }
+    
+    /* History Section Styles */
+    .history-card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .history-card h3 { margin-top: 0; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 14px; }
+    th { background-color: #f8fafc; color: #475569; }
+    .badge { background: #2563eb; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>PocketSmart Dashboard</h1>
+    <div class="nav">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/logout">Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="welcome-card">
+      <h2>Welcome back, {{ username }}!</h2>
+      <p>Select an AI budget planner below to start organizing your expenses.</p>
+    </div>
+
+    <div class="grid">
+      <div class="planner-card">
+        <h3>Home Interior Planner</h3>
+        <p>Calculate room costs, itemized interior breakdown, and shopping links within your budget.</p>
+        <a href="/home_planner" class="btn">Open Home Planner</a>
+      </div>
+
+      <div class="planner-card">
+        <h3>Jewelry Planner</h3>
+        <p>Get personalized jewelry suggestions, style tips, and direct shopping links for events.</p>
+        <a href="/jewelry_planner" class="btn">Open Jewelry Planner</a>
+      </div>
+
+      <div class="planner-card">
+        <h3>Party Planner</h3>
+        <p>Plan venues, catering, and entertainment budget allocation for your upcoming events.</p>
+        <a href="/party_planner" class="btn">Open Party Planner</a>
+      </div>
+    </div>
+
+    <!-- History Card -->
+    <div class="history-card">
+      <h3>Your Recent Search History</h3>
+      {% if history and history|length > 0 %}
+        <table>
+          <thead>
+            <tr>
+              <th>Planner Type</th>
+              <th>Details</th>
+              <th>Budget</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in history %}
+              <tr>
+                <td><span class="badge">{{ item.type }}</span></td>
+                <td>{{ item.title }}</td>
+                <td>${{ item.budget }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="color: #64748b;">No recent plans generated yet. Try generating a budget plan above!</p>
+      {% endif %}
+    </div>
+  </div>
+
+</body>
+</html>
