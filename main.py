@@ -58,7 +58,7 @@ def home_planner():
 
 @app.route("/jewelry_planner")
 def jewelry_planner():
-    return render_template("jewelry_planner.html")
+    return render_template("jewelry.html")
 
 @app.route("/party_planner")
 def party_planner():
@@ -126,7 +126,6 @@ def generate_home():
         )
         cleaned_result = clean_json_response(response.text)
     except Exception as e:
-        # Fallback response for demo safety if API fails or exhausts quota
         cleaned_result = json.dumps({
             "total_budget": budget,
             "remaining_budget": "2500",
@@ -197,7 +196,6 @@ def generate_jewelry():
         )
         cleaned_result = clean_json_response(response.text)
     except Exception as e:
-        # Fallback response for demo safety
         cleaned_result = json.dumps({
             "total_budget": budget,
             "outfit_analysis": {
@@ -266,7 +264,6 @@ def generate_party():
         )
         cleaned_result = clean_json_response(response.text)
     except Exception as e:
-        # Fallback response for demo safety
         cleaned_result = json.dumps({
             "total_budget": budget,
             "categories": [
@@ -292,3 +289,4 @@ def generate_party():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000, debug=True)
+
