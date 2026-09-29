@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PocketSmart - Party Planner</title>
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
@@ -41,16 +42,16 @@
     <div class="card">
       <div class="card-title">Party Budget Planner</div>
       <div class="form-group">
-        <label>Event Type:</label>
+        <label for="event_type">Event Type:</label>
         <input type="text" id="event_type" placeholder="Birthday / Wedding">
       </div>
       <div class="form-group">
-        <label>Number of Guests:</label>
-        <input type="number" id="guests" placeholder="50">
+        <label for="guests">Number of Guests:</label>
+        <input type="number" id="guests" placeholder="50" min="1">
       </div>
       <div class="form-group">
-        <label>Total Budget ($ / ₹):</label>
-        <input type="number" id="budget" placeholder="5000">
+        <label for="budget">Total Budget ($ / ₹):</label>
+        <input type="number" id="budget" placeholder="5000" min="1">
       </div>
       <button class="btn" onclick="generatePlan()">Generate Budget Plan</button>
     </div>
@@ -63,14 +64,19 @@
 
   <script>
     async function generatePlan() {
-      const event_type = document.getElementById('event_type').value;
-      const guests = document.getElementById('guests').value;
-      const budget = document.getElementById('budget').value;
+      const event_type = document.getElementById('event_type').value.trim();
+      const guests = document.getElementById('guests').value.trim();
+      const budget = document.getElementById('budget').value.trim();
       const resultsCard = document.getElementById('resultsCard');
       const outputContainer = document.getElementById('outputContainer');
 
       if (!event_type || !guests || !budget) {
         alert("Please fill in all fields.");
+        return;
+      }
+
+      if (Number(guests) <= 0 || Number(budget) <= 0) {
+        alert("Please enter valid positive numbers for guests and budget.");
         return;
       }
 
@@ -81,8 +87,12 @@
         const response = await fetch('/generate_party', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ event_type, guests, budget })
+          body: JSON.stringify({ event_type, guests: Number(guests), budget: Number(budget) })
         });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with status ${response.status}`);
+        }
 
         const data = await response.json();
         
@@ -91,45 +101,51 @@
           return;
         }
 
-        const json = JSON.parse(data.result);
+        // Handles cases where 'result' is either a JSON string or already an Object
+        const json = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
         
         let html = `
           <div class="summary-box">
-            <span>Budget: $${json.total_budget}</span>
+            <span>Total Budget: ${json.total_budget}</span>
           </div>
         `;
 
-        json.categories.forEach(cat => {
-          html += `<div class="category-header">${cat.name}</div>`;
-          html += `
-            <table>
-              <thead>
-                <tr>
-                  <th>Option / Item</th>
-                  <th>Description</th>
-                  <th>Estimated Price</th>
-                </tr>
-              </thead>
-              <tbody>
-          `;
-
-          cat.items.forEach(item => {
+        if (json.categories && Array.isArray(json.categories)) {
+          json.categories.forEach(cat => {
+            html += `<div class="category-header">${cat.name}</div>`;
             html += `
-              <tr>
-                <td><b>${item.name}</b></td>
-                <td>${item.description}</td>
-                <td><span class="badge">$${item.price}</span></td>
-              </tr>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Option / Item</th>
+                    <th>Description</th>
+                    <th>Estimated Price</th>
+                  </tr>
+                </thead>
+                <tbody>
             `;
-          });
 
-          html += `</tbody></table>`;
-        });
+            if (cat.items && Array.isArray(cat.items)) {
+              cat.items.forEach(item => {
+                html += `
+                  <tr>
+                    <td><b>${item.name}</b></td>
+                    <td>${item.description}</td>
+                    <td><span class="badge">${item.price}</span></td>
+                  </tr>
+                `;
+              });
+            }
+
+            html += `</tbody></table>`;
+          });
+        }
 
         outputContainer.innerHTML = html;
 
       } catch (err) {
-        outputContainer.innerHTML = `<p style="color:red;">Failed to render response.</p>`;
+        console.error("Error generating party plan:", err);
+        outputContainer.innerHTML = `<p style="color:red;">Failed to render response: ${err.message}</p>`;
       }
     }
   </script>
