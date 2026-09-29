@@ -1,7 +1,7 @@
 import os
 import json
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
-from google import genai
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,7 +9,8 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = "pocketsmart_secret_key"
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Configure the legacy Google Generative AI SDK
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 users = {}
 
@@ -125,10 +126,8 @@ def generate_home():
     """
 
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
         cleaned_result = clean_json_response(response.text)
         parsed_result = json.loads(cleaned_result)
     except Exception as e:
@@ -199,10 +198,8 @@ def generate_jewelry():
     """
 
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
         cleaned_result = clean_json_response(response.text)
         parsed_result = json.loads(cleaned_result)
     except Exception as e:
@@ -271,10 +268,8 @@ def generate_party():
     """
 
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
         cleaned_result = clean_json_response(response.text)
         parsed_result = json.loads(cleaned_result)
     except Exception as e:
