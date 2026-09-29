@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PocketSmart - Home Interior Planner</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
+    .header { background-color: #1e3a8a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .nav a { color: white; margin-left: 20px; text-decoration: none; font-weight: bold; }
+    .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+    .card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+    .card-title { background: #1e3a8a; color: white; padding: 10px 15px; border-radius: 6px; font-size: 16px; font-weight: bold; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #334155; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+    .btn { background-color: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+    .btn:hover { background-color: #1d4ed8; }
+    
+    .summary-box { display: flex; justify-content: space-between; background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; color: #0369a1; }
+    .category-header { background: #f1f5f9; padding: 8px 12px; border-left: 4px solid #2563eb; margin: 15px 0 10px 0; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; font-size: 14px; }
+    th { background-color: #f8fafc; color: #475569; }
+    .shop-btn { background: white; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; margin-right: 4px; font-size: 12px; cursor: pointer; text-decoration: none; color: #334155; }
+    .shop-btn:hover { background: #f1f5f9; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>PocketSmart - Home Interior Planner</h1>
+    <div class="nav">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/home_planner">Home Planner</a>
+      <a href="/party_planner">Party Planner</a>
+      <a href="/jewelry_planner">Jewelry Planner</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-title">Enter Home Planning Details</div>
+      <div class="form-group">
+        <label>Room Types & Quantities (e.g., 2 Bedrooms, 1 Living Room):</label>
+        <input type="text" id="rooms" placeholder="2 bedrooms, living room">
+      </div>
+      <div class="form-group">
+        <label>Total Budget ($ / ₹):</label>
+        <input type="number" id="budget" placeholder="23000">
+      </div>
+      <button class="btn" onclick="generatePlan()">Generate Recommendations</button>
+    </div>
+
+    <div id="resultsCard" class="card" style="display: none;">
+      <div class="card-title">Your Personalized Budget Plan</div>
+      <div id="outputContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    async function generatePlan() {
+      const rooms = document.getElementById('rooms').value;
+      const budget = document.getElementById('budget').value;
+      const resultsCard = document.getElementById('resultsCard');
+      const outputContainer = document.getElementById('outputContainer');
+
+      if (!rooms || !budget) {
+        alert("Please fill in both fields.");
+        return;
+      }
+
+      outputContainer.innerHTML = "<p>Generating recommendations...</p>";
+      resultsCard.style.display = "block";
+
+      try {
+        const response = await fetch('/generate_home', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rooms, budget })
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+          outputContainer.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+          return;
+        }
+
+        const json = JSON.parse(data.result);
+        
+        let html = `
+          <div class="summary-box">
+            <span>Total Budget: $${json.total_budget}</span>
+            <span>Remaining Budget: $${json.remaining_budget || '0'}</span>
+          </div>
+        `;
+
+        json.categories.forEach(cat => {
+          html += `<div class="category-header">${cat.name} (Allocation: $${cat.allocation})</div>`;
+          html += `
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Description</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Shopping Links</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+
+          cat.items.forEach(item => {
+            html += `
+              <tr>
+                <td><b>${item.item}</b></td>
+                <td>${item.description}</td>
+                <td>$${item.price}</td>
+                <td>${item.quantity}</td>
+                <td>
+                  <a href="https://www.amazon.com/s?k=${encodeURIComponent(item.item)}" target="_blank" class="shop-btn">Amazon</a>
+                  <a href="https://www.flipkart.com/search?q=${encodeURIComponent(item.item)}" target="_blank" class="shop-btn">Flipkart</a>
+                  <a href="https://www.ikea.com/search/?q=${encodeURIComponent(item.item)}" target="_blank" class="shop-btn">IKEA</a>
+                </td>
+              </tr>
+            `;
+          });
+
+          html += `</tbody></table>`;
+        });
+
+        outputContainer.innerHTML = html;
+
+      } catch (err) {
+        outputContainer.innerHTML = `<p style="color:red;">Failed to render response.</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
