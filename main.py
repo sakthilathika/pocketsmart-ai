@@ -52,15 +52,15 @@ def logout():
     session.pop("history", None)
     return redirect(url_for("login"))
 
-@app.route("/home_planner")
+@app.route("/homeplanner")
 def home_planner():
-    return render_template("home_interior.html")
+    return render_template("homeinterior.html")
 
-@app.route("/jewelry_planner")
+@app.route("/jewelryplanner")
 def jewelry_planner():
     return render_template("jewelry.html")
 
-@app.route("/party_planner")
+@app.route("/partyplanner")
 def party_planner():
     return render_template("partyplanner.html")
 
