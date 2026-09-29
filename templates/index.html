@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PocketSmart - Smart Budget Planning</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; }
+    .header { background-color: #1e3a8a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .nav a { color: white; margin-left: 20px; text-decoration: none; font-weight: bold; }
+    .container { max-width: 900px; margin: 40px auto; padding: 0 20px; text-align: center; }
+    .hero-title { font-size: 28px; color: #1e3a8a; margin-bottom: 10px; font-weight: bold; }
+    .hero-subtitle { font-size: 16px; color: #475569; margin-bottom: 30px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+    .planner-card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #2563eb; text-align: left; transition: transform 0.2s; }
+    .planner-card:hover { transform: translateY(-4px); }
+    .planner-card h3 { margin-top: 0; color: #1e3a8a; font-size: 20px; }
+    .planner-card p { color: #64748b; font-size: 14px; line-height: 1.5; }
+    .btn { display: inline-block; background-color: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; margin-top: 15px; }
+    .btn:hover { background-color: #1d4ed8; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>PocketSmart</h1>
+    <div class="nav">
+      <a href="/">Home</a>
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="hero-title">Smart AI Budgeting for Every Occasion</div>
+    <div class="hero-subtitle">Plan your home interior, jewelry purchases, and party events with AI-powered budget recommendations.</div>
+
+    <div class="grid">
+      <div class="planner-card">
+        <h3>Home Interior</h3>
+        <p>Get room-by-room budget allocation, itemized breakdown, and direct shopping links for furniture and fixtures.</p>
+        <a href="/home_planner" class="btn">Explore Home Planner</a>
+      </div>
+
+      <div class="planner-card">
+        <h3>Jewelry Planner</h3>
+        <p>Find matching jewelry pieces, outfit styling tips, and product recommendations tailored to your total budget.</p>
+        <a href="/jewelry_planner" class="btn">Explore Jewelry Planner</a>
+      </div>
+
+      <div class="planner-card">
+        <h3>Party Planner</h3>
+        <p>Organize venue rentals, catering options, and entertainment estimates within your target event budget.</p>
+        <a href="/party_planner" class="btn">Explore Party Planner</a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
