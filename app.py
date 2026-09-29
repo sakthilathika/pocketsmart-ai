@@ -84,7 +84,7 @@ def get_current_user(request: Request) -> Optional[dict]:
         return db_users[username]
     except JWTError:
         return None
-
 def extract_json_from_response(text: str) -> dict:
-    text = re.sub(r'```json\s*', '', text)
-    text = re.sub(r'
+    text = re.sub(r"```json\s*", "", text)
+    text = re.sub(r"```\s*", "", text).strip()
+    return json.loads(text)
