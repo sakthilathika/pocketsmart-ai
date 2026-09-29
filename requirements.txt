@@ -5,3 +5,5 @@ jinja2
 python-dotenv
 python-multipart
 requests
+pillow
+google-generativeai
