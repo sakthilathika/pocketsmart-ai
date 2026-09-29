@@ -57,86 +57,92 @@
       <div id="outputContainer"></div>
     </div>
   </div>
+<script>
+async function generatePlan() {
+  const rooms = document.getElementById('rooms').value.trim();
+  const budget = document.getElementById('budget').value.trim();
+  const resultsCard = document.getElementById('resultsCard');
+  const outputContainer = document.getElementById('outputContainer');
 
-  <script>
-    async function generatePlan() {
-      const rooms = document.getElementById('rooms').value;
-      const budget = document.getElementById('budget').value;
-      const resultsCard = document.getElementById('resultsCard');
-      const outputContainer = document.getElementById('outputContainer');
+  if (!rooms || !budget) {
+    alert("Please fill in all fields.");
+    return;
+  }
 
-      if (!rooms || !budget) {
-        alert("Please fill in both fields.");
-        return;
-      }
+  outputContainer.innerHTML = "<p>Generating budget plan...</p>";
+  resultsCard.style.display = "block";
 
-      outputContainer.innerHTML = "<p>Generating recommendations...</p>";
-      resultsCard.style.display = "block";
+  try {
+    const response = await fetch('/generate_home', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rooms, budget })
+    });
 
-      try {
-        const response = await fetch('/generate_home', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rooms, budget })
-        });
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
+    }
 
-        const data = await response.json();
-        
-        if (data.error) {
-          outputContainer.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
-          return;
-        }
+    const data = await response.json();
 
-        const json = JSON.parse(data.result);
-        
-        let html = `
-          <div class="summary-box">
-            <span>Total Budget: $${json.total_budget}</span>
-            <span>Remaining Budget: $${json.remaining_budget || '0'}</span>
-          </div>
-        `;
+    if (data.error) {
+      outputContainer.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+      return;
+    }
 
-        json.categories.forEach(cat => {
-          html += `<div class="category-header">${cat.name} (Allocation: $${cat.allocation})</div>`;
-          html += `
-            <table>
+    // Direct Object illana String-a irundha parse pannum
+    const json = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
+
+    let html = `
+      <div class="summary-box" style="margin-bottom: 20px; padding: 10px; background: #e2e8f0; border-radius: 6px;">
+        <p><b>Total Budget:</b> ₹${json.total_budget || budget}</p>
+        <p><b>Estimated Remaining:</b> ₹${json.remaining_budget || '0'}</p>
+      </div>
+    `;
+
+    if (json.categories && Array.isArray(json.categories)) {
+      json.categories.forEach(cat => {
+        html += `
+          <div style="margin-bottom: 20px;">
+            <h3 style="color: #1e293b; border-bottom: 2px solid #cbd5e1; padding-bottom: 5px;">
+              ${cat.name} (Allocation: ₹${cat.allocation || 'N/A'})
+            </h3>
+            <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
               <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Description</th>
-                  <th>Price</th>
-                  <th>Quantity</th>
-                  <th>Shopping Links</th>
+                <tr style="background-color: #f1f5f9; text-align: left;">
+                  <th style="padding: 8px;">Item</th>
+                  <th style="padding: 8px;">Description</th>
+                  <th style="padding: 8px;">Qty</th>
+                  <th style="padding: 8px;">Price</th>
                 </tr>
               </thead>
               <tbody>
-          `;
+        `;
 
+        if (cat.items && Array.isArray(cat.items)) {
           cat.items.forEach(item => {
             html += `
-              <tr>
-                <td><b>${item.item}</b></td>
-                <td>${item.description}</td>
-                <td>$${item.price}</td>
-                <td>${item.quantity}</td>
-                <td>
-                  <a href="https://www.amazon.com/s?k=${encodeURIComponent(item.item)}" target="_blank" class="shop-btn">Amazon</a>
-                  <a href="https://www.flipkart.com/search?q=${encodeURIComponent(item.item)}" target="_blank" class="shop-btn">Flipkart</a>
-                  <a href="https://www.ikea.com/search/?q=${encodeURIComponent(item.item)}" target="_blank" class="shop-btn">IKEA</a>
-                </td>
+              <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 8px;"><b>${item.item || item.name}</b></td>
+                <td style="padding: 8px;">${item.description || '-'}</td>
+                <td style="padding: 8px;">${item.quantity || 1}</td>
+                <td style="padding: 8px;">₹${item.price}</td>
               </tr>
             `;
           });
+        }
 
-          html += `</tbody></table>`;
-        });
-
-        outputContainer.innerHTML = html;
-
-      } catch (err) {
-        outputContainer.innerHTML = `<p style="color:red;">Failed to render response.</p>`;
-      }
+        html += `</tbody></table></div>`;
+      });
     }
-  </script>
-</body>
+
+    outputContainer.innerHTML = html;
+
+  } catch (err) {
+    console.error("Home Planner Fetch Error:", err);
+    outputContainer.innerHTML = `<p style="color:red;">Failed to render response: ${err.message}</p>`;
+  }
+}
+</script>
+  </body>
 </html>
