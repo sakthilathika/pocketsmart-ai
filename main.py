@@ -54,7 +54,7 @@ def logout():
 
 @app.route("/home_planner")
 def home_planner():
-    return render_template("home_planner.html")
+    return render_template("home_interior.html")
 
 @app.route("/jewelry_planner")
 def jewelry_planner():
@@ -62,7 +62,7 @@ def jewelry_planner():
 
 @app.route("/party_planner")
 def party_planner():
-    return render_template("party_planner.html")
+    return render_template("partyplanner.html")
 
 def clean_json_response(text):
     text = text.strip()
