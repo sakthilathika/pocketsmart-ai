@@ -1,17 +1,17 @@
-# PocketSmart AI 💰🤖
+🏠 Home Interior Budget Planner:
+​Takes your total budget and fixture requirements (like lights, fans, or furniture).  
+​Calculates a balanced, itemized cost breakdown that stays strictly within your budget limit. 
 
-A GenAI-powered smart budget management and recommendation assistant designed to help users track expenses and get savings insights.
+​🎉 AI-Based Party Planner:
+​Accepts your guest count, event type, and spending budget.  
+​Automatically divides funds across venue, catering, and entertainment for easy planning. 
 
-## 📌 Features
-- 📊 **Smart Expense Tracking**: Log daily expenses easily.
-- 💡 **AI Recommendations**: Personalized insights for savings.
-- 🌐 **Interactive Interface**: Simple UI built with Python backend.
+​💎 Jewelry Budget Planner:
+​Accepts outfit details, occasion type, and budget limits.  
+​Gemini AI analyzes dress style and formality to suggest matching jewelry options. 
 
-## 🛠️ Tech Stack
-- **Language**: Python, HTML/CSS
-- **Backend**: Python (`main.py`)
+​📊 Smart Budget Breakdown:
+​Automatically calculates itemized costs in INR for recommended products and services. 
 
-## 🚀 How to Run
-```bash
-pip install -r requirements.txt
-python main.py
+​📜 Recommendation History & Dashboard:
+​Stores past budget plans and tracks recent activity using session management.
